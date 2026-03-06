@@ -713,6 +713,9 @@ basic.forever(function () {
             showHandler()
 })
 
+//% color="#00CC00" icon="\uf0c1"
+//% block="Sumo"
+//% block.loc.nl="Sumo"
 namespace Sumo {
 
     let fielddiameter = 120 // cm
@@ -857,5 +860,96 @@ namespace Sumo {
         }
         NezhaBrick.twoWheelSpeed(0, 0)
         if (showHandler) showHandler()
+    }
+
+    //% subcategory="Show"
+    //% color="#FFCC44"
+    //% block="rotate at %pace pace"
+    //% block.loc.nl="draai in %pace tempo"
+    export function setPace(_pace: Pace) {
+        pace = _pace
+    }
+
+    //% subcategory="Show"
+    //% color="#FFCC44"
+    //% block="rotate a snake %rotation with color %color"
+    //% block.loc.nl="draai een slang %rotation met kleur %color"
+    //% color.defl=Color.White
+    export function showSnake(rotation: Rotate, color: Color) {
+        ETledRing.snake(color, rotation, pace)
+    }
+
+    //% subcategory="Show"
+    //% color="#FFCC44"
+    //% block="rotate rainbow %rotation"
+    //% block.loc.nl="draai een regenboog %rotation"
+    export function showRainbow(rotation: Rotate) {
+        ETledRing.rainbow(rotation, pace)
+    }
+
+    //% subcategory="Show"
+    //% group="Leds apart"
+    //% color="#FFCC44"
+    //% block="rotate a full circle %rotation at %pace pace"
+    //% block.loc.nl="draai een hele cirkel %rotation in %pace tempo"
+    //% pace.defl=Pace.Normal
+    export function circleLeds(rotation: Rotate) {
+        ETledRing.show()
+        for (let i = 0; i <= 7; i++) {
+            ETledRing.setRotate(rotation)
+            ETledRing.show()
+            basic.pause((pace + 1) * 50)
+        }
+    }
+
+    //% subcategory="Show"
+    //% group="Leds apart"
+    //% color="#FFCC44"
+    //% block="rotate one position %rotation"
+    //% block.loc.nl="draai één positie %rotation"
+    export function rotateLeds(rotation: Rotate) {
+        ETledRing.setRotate(rotation)
+        ETledRing.show()
+    }
+
+    //% subcategory="Show"
+    //% group="Leds apart"
+    //% color="#FFCC44"
+    //% block="turn all leds off"
+    //% block.loc.nl="schakel alle leds uit"
+    export function ledsOff() {
+        ETledRing.setClear()
+        ETledRing.show()
+    }
+
+    //% subcategory="Show"
+    //% group="Leds apart"
+    //% color="#FFCC44"
+    //% block="set led %num to color %color"
+    //% block.loc.nl="stel led %num in op kleur %color"
+    //% color.defl=Color.White
+    //% num.min=1 num.max=8
+    export function showLedColor(num: number, color: Color) {
+        ETledRing.setPixelColor(num - 1, color)
+        ETledRing.show()
+    }
+
+    //% subcategory="Show"
+    //% color="#FFCC44"
+    //% block="show color %color"
+    //% block.loc.nl="toon de kleur %color"
+    //% color.defl=Color.White
+    export function showColor(color: Color) {
+        ETledRing.setColor(color)
+        ETledRing.show()
+    }
+
+    //% subcategory="Show"
+    //% color="#FFCC44"
+    //% block="set brightness to %bright \\%"
+    //% block.loc.nl="stel de helderheid in op %bright \\%"
+    //% bright.min=0 bright.max=100
+    export function setBrightness(brightness: number) {
+        ETledRing.setBrightness(brightness)
     }
 }
