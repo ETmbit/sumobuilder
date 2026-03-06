@@ -713,9 +713,6 @@ basic.forever(function () {
             showHandler()
 })
 
-//% color="#00CC00" icon="\uf0c1"
-//% block="Sumo"
-//% block.loc.nl="Sumo"
 namespace Sumo {
 
     let fielddiameter = 120 // cm
@@ -861,7 +858,6 @@ namespace Sumo {
         if (showHandler) showHandler()
     }
 }
-
 
 //% color="#FF66AA" icon="\uf06e"
 //% block="Led show"
