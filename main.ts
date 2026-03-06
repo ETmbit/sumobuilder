@@ -719,7 +719,6 @@ basic.forever(function () {
 namespace Sumo {
 
     let fielddiameter = 120 // cm
-    let pace = Pace.Normal
 
     export function setFieldDiameter(diameter: number) {
         fielddiameter = diameter
@@ -861,17 +860,37 @@ namespace Sumo {
         NezhaBrick.twoWheelSpeed(0, 0)
         if (showHandler) showHandler()
     }
+}
 
-    //% subcategory="Show"
-    //% color="#FFCC44"
+
+//% color="#FF66AA" icon="\uf06e"
+//% block="Led show"
+//% block.loc.nl="Led show"
+namespace Ledshow {
+
+    let pace = Pace.Normal
+
     //% block="rotate at %pace pace"
     //% block.loc.nl="draai in %pace tempo"
     export function setPace(_pace: Pace) {
         pace = _pace
     }
 
-    //% subcategory="Show"
-    //% color="#FFCC44"
+    //% block="set brightness to %bright \\%"
+    //% block.loc.nl="stel de helderheid in op %bright \\%"
+    //% bright.min=0 bright.max=100
+    export function setBrightness(brightness: number) {
+        ETledRing.setBrightness(brightness)
+    }
+
+    //% block="show color %color"
+    //% block.loc.nl="toon de kleur %color"
+    //% color.defl=Color.White
+    export function showColor(color: Color) {
+        ETledRing.setColor(color)
+        ETledRing.show()
+    }
+
     //% block="rotate a snake %rotation with color %color"
     //% block.loc.nl="draai een slang %rotation met kleur %color"
     //% color.defl=Color.White
@@ -879,17 +898,13 @@ namespace Sumo {
         ETledRing.snake(color, rotation, pace)
     }
 
-    //% subcategory="Show"
-    //% color="#FFCC44"
     //% block="rotate rainbow %rotation"
     //% block.loc.nl="draai een regenboog %rotation"
     export function showRainbow(rotation: Rotate) {
         ETledRing.rainbow(rotation, pace)
     }
 
-    //% subcategory="Show"
-    //% group="Leds apart"
-    //% color="#FFCC44"
+    //% subcategory="Leds apart"
     //% block="rotate a full circle %rotation at %pace pace"
     //% block.loc.nl="draai een hele cirkel %rotation in %pace tempo"
     //% pace.defl=Pace.Normal
@@ -902,9 +917,7 @@ namespace Sumo {
         }
     }
 
-    //% subcategory="Show"
-    //% group="Leds apart"
-    //% color="#FFCC44"
+    //% subcategory="Leds apart"
     //% block="rotate one position %rotation"
     //% block.loc.nl="draai één positie %rotation"
     export function rotateLeds(rotation: Rotate) {
@@ -912,9 +925,7 @@ namespace Sumo {
         ETledRing.show()
     }
 
-    //% subcategory="Show"
-    //% group="Leds apart"
-    //% color="#FFCC44"
+    //% subcategory="Leds apart"
     //% block="turn all leds off"
     //% block.loc.nl="schakel alle leds uit"
     export function ledsOff() {
@@ -922,9 +933,7 @@ namespace Sumo {
         ETledRing.show()
     }
 
-    //% subcategory="Show"
-    //% group="Leds apart"
-    //% color="#FFCC44"
+    //% subcategory="Leds apart"
     //% block="set led %num to color %color"
     //% block.loc.nl="stel led %num in op kleur %color"
     //% color.defl=Color.White
@@ -932,24 +941,5 @@ namespace Sumo {
     export function showLedColor(num: number, color: Color) {
         ETledRing.setPixelColor(num - 1, color)
         ETledRing.show()
-    }
-
-    //% subcategory="Show"
-    //% color="#FFCC44"
-    //% block="show color %color"
-    //% block.loc.nl="toon de kleur %color"
-    //% color.defl=Color.White
-    export function showColor(color: Color) {
-        ETledRing.setColor(color)
-        ETledRing.show()
-    }
-
-    //% subcategory="Show"
-    //% color="#FFCC44"
-    //% block="set brightness to %bright \\%"
-    //% block.loc.nl="stel de helderheid in op %bright \\%"
-    //% bright.min=0 bright.max=100
-    export function setBrightness(brightness: number) {
-        ETledRing.setBrightness(brightness)
     }
 }
