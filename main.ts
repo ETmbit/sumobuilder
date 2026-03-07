@@ -795,6 +795,7 @@ namespace Sumo {
     }
 
     export function turn(rotation: Rotate, speed: number) {
+        if (!Match.isPlaying()) return
         if (rotation == Rotate.Clockwise)
             NezhaBrick.twoWheelSpeed(-speed / 2, speed / 2)
         else
@@ -802,6 +803,7 @@ namespace Sumo {
     }
 
     export function move(dir: Move, speed: number, bend: Bend) {
+        if (!Match.isPlaying()) return
         let spd: number
         if (dir == Move.Forward) spd = speed
         else spd = -speed
