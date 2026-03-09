@@ -647,12 +647,6 @@ enum Bend {
     Right
 }
 
-enum FloorPos {
-    Field,
-    Border,
-    Out
-}
-
 // pre-declared in ETmbit/match
 showHandler = () => {
     if (ETplayer == Player.Green)
