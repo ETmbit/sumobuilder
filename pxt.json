@@ -5,7 +5,7 @@
         "core": "*",
         "radio": "*",
         "microphone": "*",
-        "match": "github:ETmbit/match#08a730e4386c9cf182bf0ba32911ca8752e40dee"
+        "match": "github:etmbit/match#430f25c5db4f423f75edcf3a29ccb8f7f1b69631"
     },
     "files": [
         "main.blocks",
@@ -16,7 +16,7 @@
         "test.ts"
     ],
     "targetVersions": {
-        "target": "8.0.18",
+        "target": "8.0.21",
         "targetId": "microbit"
     },
     "supportedTargets": [

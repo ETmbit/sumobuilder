@@ -350,6 +350,7 @@ namespace Ledstrip {
 ///////////////////
 //  END INCLUDE  //
 ///////////////////
+
 //////////////////
 //  INCLUDE     //
 //  vl53l1x.ts  //
@@ -554,6 +555,7 @@ namespace VL53L1X {
             timeoutMicrosecondsToMclks(range_config_timeout_us, macro_period_us)))
         return true
     }
+
 
     export function readRaw(): number {
         startTimeout()
@@ -941,14 +943,6 @@ showHandler = () => {
 }
 
 // pre-declared in ETmbit/match
-freezeHandler = () => {
-    // stop
-    NezhaBrick.twoWheelSpeed(0, 0)
-    // lever down
-    NezhaBrick.servoAngle(ServoPort.S4, 180)
-}
-
-// pre-declared in ETmbit/match
 initHandler = (): void => {
     ETpointsGreen = 0
     ETpointsBlue = 0
@@ -957,27 +951,43 @@ initHandler = (): void => {
     basic.showNumber(0)
 }
 
+// pre-declared in ETmbit/match
+freezeHandler = () => {
+    // stop
+    NezhaBrick.twoWheelSpeed(0, 0)
+    // lever down
+    NezhaBrick.servoAngle(ServoPort.S4, 180)
+}
+
+// pre-declared in ETmbit/match
+inFieldHandler = (): void => {
+    if (ETsensorBOF.read() != Track.OffTrack) {
+        // out of field
+        ETledRing.setColor(Color.Magenta)
+        ETledRing.show()
+        Match.setOutOfField()
+    }
+    else
+        // in field
+        showHandler()
+}
+
 basic.forever(function () {
-    if (!Match.isPlaying()) return
     if (ETsensorOOF.read() != Track.OffTrack) {
+        // game over
         ETledRing.setColor(Color.Red)
         ETledRing.show()
         if (ETplayer == Player.Green) {
-            General.sendRadioMessage("MA", MatchMessage.PointBlue)
+            ETmatchMsg = MatchMessage.PointBlue
             ETpointsBlue += 1
         }
         else {
-            General.sendRadioMessage("MA", MatchMessage.PointGreen)
+            ETmatchMsg = MatchMessage.PointGreen
             ETpointsGreen += 1
         }
+        General.sendRadioMessage("MA", ETmatchMsg)
+        if (freezeHandler) freezeHandler()
     }
-    else
-        if (ETsensorBOF.read() != Track.OffTrack) {
-            ETledRing.setColor(Color.Magenta)
-            ETledRing.show()
-        }
-        else
-            showHandler()
 })
 
 namespace SumoBuilder {
@@ -985,42 +995,35 @@ namespace SumoBuilder {
     let fielddiameter = 120 // cm
     let neardistance = 15 //cm
 
-    function infield(): number {
-        return (ETsensorBOF.read() || ETsensorOOF.read() ? 0 : 1)
+    export function isInField(): boolean {
+        return (ETsensorBOF.read() == Track.OffTrack && 
+            ETsensorOOF.read() == Track.OffTrack)
     }
 
-    function onborder(): number {
-        return (ETsensorBOF.read() ? 1 : 0)
+    export function isOnBorder(): boolean {
+        return (ETsensorBOF.read() != Track.OffTrack)
     }
 
-    function outoffield(): number {
-        return (ETsensorOOF.read() ? 1 : 0)
+    export function isOutOfField(): boolean {
+        return (ETsensorOOF.read() != Track.OffTrack)
     }
 
-    function notrace(): number {
-        return (VL53L1X.read() > fielddiameter ? 1 : 0)
+    export function isDistNoTrace(): boolean {
+        return (VL53L1X.read() > fielddiameter)
     }
 
-    function traced(): number {
-        return (VL53L1X.read() <= fielddiameter ? 1 : 0)
+    export function isDistTraced(): boolean {
+        return (VL53L1X.read() <= fielddiameter)
     }
 
-    function far(): number {
+    export function isDistFar(): boolean {
         let cm = VL53L1X.read()
-        return (cm > neardistance && cm <= fielddiameter ? 1 : 0)
+        return (cm > neardistance && cm <= fielddiameter)
     }
 
-    function near(): number {
-        return (VL53L1X.read() <= neardistance ? 1 : 0)
+    export function isDistNear(): boolean {
+        return (VL53L1X.read() <= neardistance)
     }
-
-    Match.registerWaitFor(WaitFor.InField, infield)
-    Match.registerWaitFor(WaitFor.OnBorder, onborder)
-    Match.registerWaitFor(WaitFor.OutOfField, outoffield)
-    Match.registerWaitFor(WaitFor.NoTrace, notrace)
-    Match.registerWaitFor(WaitFor.Traced, traced)
-    Match.registerWaitFor(WaitFor.Far, far)
-    Match.registerWaitFor(WaitFor.Near, near)
 
     export function setFieldDiameter(diameter: number) {
         fielddiameter = diameter
@@ -1028,30 +1031,6 @@ namespace SumoBuilder {
 
     export function setNearDistance(distance: number) {
         neardistance = distance
-    }
-
-    export function readLocation(): WaitFor {
-        if (ETsensorOOF.read()) return WaitFor.OutOfField
-        if (ETsensorBOF.read()) return WaitFor.OnBorder
-        return WaitFor.InField
-    }
-
-    let tm_dist = 0
-    export function readDistance(): WaitFor {
-        while (tm_dist > control.millis()) basic.pause(1)
-        let cm = VL53L1X.read()
-        tm_dist = control.millis() + 50
-        if (cm < neardistance) return WaitFor.Near
-        if (cm < fielddiameter) return WaitFor.Far
-        return WaitFor.NoTrace
-    }
-
-    export function readObservance(): WaitFor {
-        while (tm_dist > control.millis()) basic.pause(1)
-        let cm = VL53L1X.read()
-        tm_dist = control.millis() + 50
-        if (cm < fielddiameter) return WaitFor.Traced
-        return WaitFor.NoTrace
     }
 
     export function leverDown() {
@@ -1062,8 +1041,72 @@ namespace SumoBuilder {
         NezhaBrick.servoAngle(ServoPort.S4, 210)
     }
 
+    export function returnToField() {
+        if (!Match.isPlaying() || Match.isHalted()) return
+        NezhaBrick.twoWheelSpeed(-20, -20)
+        General.wait(2)
+        NezhaBrick.twoWheelSpeed(0, 0)
+    }
+
+    export function runToRandom() {
+        if (!Match.isPlaying() || Match.isHalted()) return
+        NezhaBrick.twoWheelSpeed(20, -20)
+        let tm = control.millis() + General.randomInt(500, 1500)
+        while (tm > control.millis()) {
+            if (!Match.isPlaying() || Match.isHalted()) return
+            basic.pause(1)
+        }
+        NezhaBrick.twoWheelSpeed(30, 30)
+        tm = control.millis() + General.randomInt(500, 1500)
+        while (tm > control.millis()) {
+            if (!Match.isPlaying() || Match.isHalted()) return
+            basic.pause(1)
+        }
+        return
+    }
+
+    export function pushOpp() {
+        if (!Match.isPlaying() || Match.isHalted()) return
+        NezhaBrick.twoWheelSpeed(50, 50)
+        let tm = control.millis() + 5000
+        while (isInField()) {
+            if (!Match.isPlaying() || Match.isHalted()) return
+            basic.pause(1)
+        }
+        return
+    }
+
+    export function runToOpp(): boolean {
+        if (!Match.isPlaying() || Match.isHalted()) return false
+        NezhaBrick.twoWheelSpeed(30, 30)
+        let tm = control.millis() + 5000
+        let cm = VL53L1X.read()
+        while (cm > 40) {
+            if (!Match.isPlaying() || Match.isHalted()) return false
+            if (cm > fielddiameter) return false
+            basic.pause(1)
+        }
+        return true
+    }
+
+    export function traceOpp(): boolean {
+        if (!Match.isPlaying() || Match.isHalted()) return false
+        NezhaBrick.twoWheelSpeed(12, -12)
+        let tm = control.millis() + 5000
+        let cm = VL53L1X.read()
+        while (cm > 40) {
+            if (!Match.isPlaying() || Match.isHalted()) return false
+            if (tm < control.millis()) {
+                NezhaBrick.twoWheelStop()
+                return false
+            }
+            basic.pause(1)
+        }
+        return true
+    }
+
     export function turn(rotation: Rotate, speed: number) {
-        if (!Match.isPlaying()) return
+        if (!Match.isPlaying() || Match.isHalted()) return
         if (rotation == Rotate.Clockwise)
             NezhaBrick.twoWheelSpeed(-speed / 2, speed / 2)
         else
@@ -1071,7 +1114,7 @@ namespace SumoBuilder {
     }
 
     export function move(dir: Move, speed: number, bend: Bend) {
-        if (!Match.isPlaying()) return
+        if (!Match.isPlaying() || Match.isHalted()) return
         let spd: number
         if (dir == Move.Forward) spd = speed
         else spd = -speed
