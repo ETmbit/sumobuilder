@@ -4,8 +4,7 @@
     "dependencies": {
         "core": "*",
         "radio": "*",
-        "microphone": "*",
-        "match": "github:etmbit/match#430f25c5db4f423f75edcf3a29ccb8f7f1b69631"
+        "microphone": "*"
     },
     "files": [
         "main.blocks",
