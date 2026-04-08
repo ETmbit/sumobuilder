@@ -20,6 +20,7 @@ ETmbit/general, ETmbit/match
 // ====
 // BOF = border of the field
 // OOF = outside the field
+
 ////////////////
 //  INCLUDE   //
 //  match.ts  //
@@ -1232,12 +1233,20 @@ enum Bend {
 }
 
 // pre-declared in ETmbit/match
-showHandler = () => {
+showHandler = (): void => {
     if (ETplayer == Player.Green)
         ETledRing.setColor(Color.Green)
     else
         ETledRing.setColor(Color.Blue)
     ETledRing.show()
+}
+
+// pre-declared in ETmbit/match
+freezeHandler = (): void => {
+    // stop
+    NezhaBrick.twoWheelSpeed(0, 0)
+    // lever down
+    NezhaBrick.servoAngle(ServoPort.S4, 180)
 }
 
 // pre-declared in ETmbit/match
@@ -1247,14 +1256,6 @@ initHandler = (): void => {
     freezeHandler()
     showHandler()
     basic.showNumber(0)
-}
-
-// pre-declared in ETmbit/match
-freezeHandler = () => {
-    // stop
-    NezhaBrick.twoWheelSpeed(0, 0)
-    // lever down
-    NezhaBrick.servoAngle(ServoPort.S4, 180)
 }
 
 // pre-declared in ETmbit/match
