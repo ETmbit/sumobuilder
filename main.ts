@@ -1253,8 +1253,8 @@ freezeHandler = (): void => {
 initHandler = (): void => {
     ETpointsGreen = 0
     ETpointsBlue = 0
-    if (freezeHandler) freezeHandler()
-    if (showHandler) showHandler()
+    freezeHandler()
+    showHandler()
     basic.showNumber(0)
 }
 
